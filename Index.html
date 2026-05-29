@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestor Bar</title>
+<style>
+body{
+background:#121212;
+color:white;
+font-family:Arial;
+padding:15px;
+}
+h1{
+text-align:center;
+}
+.card{
+background:#1f1f1f;
+padding:15px;
+border-radius:15px;
+margin-bottom:15px;
+}
+input,select,button{
+width:100%;
+padding:12px;
+margin-top:10px;
+border-radius:10px;
+border:none;
+font-size:16px;
+}
+button{
+background:#00b894;
+color:white;
+font-weight:bold;
+}
+.mesa{
+background:#2d3436;
+padding:10px;
+border-radius:10px;
+margin-top:10px;
+}
+.total{
+color:#00ff99;
+font-weight:bold;
+font-size:20px;
+}
+</style>
+</head>
+<body>
+
+<h1>🍺 Gestor de Pedidos</h1>
+
+<div class="card">
+<h2>Novo Pedido</h2>
+
+<input id="mesa" placeholder="Mesa">
+
+<select id="produto">
+<option>Cerveja</option>
+<option>Refrigerante</option>
+<option>Filé</option>
+<option>Batata</option>
+</select>
+
+<input id="qtd" type="number" placeholder="Quantidade">
+
+<button onclick="addPedido()">Adicionar</button>
+</div>
+
+<div class="card">
+<h2>Mesas</h2>
+<div id="lista"></div>
+</div>
+
+<script>
+const precos = {
+"Cerveja":10,
+"Refrigerante":6,
+"Filé":35,
+"Batata":20
+};
+
+let pedidos = JSON.parse(localStorage.getItem("pedidos")) || {};
+
+function addPedido(){
+
+const mesa = document.getElementById("mesa").value;
+const produto = document.getElementById("produto").value;
+const qtd = Number(document.getElementById("qtd").value);
+
+if(!mesa || !qtd){
+alert("Preencha os campos");
+return;
+}
+
+if(!pedidos[mesa]){
+pedidos[mesa] = [];
+}
+
+pedidos[mesa].push({
+produto,
+qtd,
+valor: precos[produto]*qtd
+});
+
+salvar();
+render();
+}
+
+function salvar(){
+localStorage.setItem("pedidos", JSON.stringify(pedidos));
+}
+
+function fecharMesa(mesa){
+delete pedidos[mesa];
+salvar();
+render();
+}
+
+function render(){
+
+const lista = document.getElementById("lista");
+
+lista.innerHTML = "";
+
+for(let mesa in pedidos){
+
+let total = 0;
+
+let html = `<div class="mesa"><h3>Mesa ${mesa}</h3>`;
+
+pedidos[mesa].forEach(item=>{
+total += item.valor;
+html += `<p>${item.qtd}x ${item.produto} - R$ ${item.valor}</p>`;
+});
+
+html += `<p class="total">Total: R$ ${total}</p>`;
+html += `<button onclick="fecharMesa('${mesa}')">Fechar Conta</button>`;
+html += `</div>`;
+
+lista.innerHTML += html;
+}
+}
+
+render();
+</script>
+
+</body>
+</html>
